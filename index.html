@@ -3,724 +3,607 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>감자칩 뿡</title>
+    <title>백룸 탈출 게임</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 40px 20px;
-            min-height: 100vh;
-            transition: background-color 0.5s ease;
-            position: relative;
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: Arial, sans-serif;
         }
-
-        /* 왼쪽 위 카운터 */
-        .counter-box {
-            position: fixed;
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+        }
+        #ui {
+            position: absolute;
             top: 20px;
             left: 20px;
-            background-color: rgba(255, 255, 255, 0.95);
-            border: 3px solid #333;
-            border-radius: 10px;
-            padding: 15px 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 100;
-            min-width: 150px;
-        }
-
-        .my-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .click-counter {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ff6b6b;
-        }
-
-        #clickCount {
-            color: #ff6b6b;
-            font-size: 28px;
-        }
-
-        /* 업그레이드 섹션 */
-        .upgrade-section {
-            margin-top: 80px;
-            background-color: rgba(255, 255, 255, 0.95);
-            border: 3px solid #999;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .upgrade-section h2 {
-            text-align: center;
-            font-size: 28px;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .upgrade-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
-
-        .upgrade-item {
-            background-color: #f0f0f0;
-            border: 2px solid #999;
-            border-radius: 8px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .upgrade-item:hover:not(.locked) {
-            background-color: #e0e0e0;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .upgrade-item.locked {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .upgrade-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .upgrade-name {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .upgrade-desc {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-
-        .upgrade-cost {
-            font-size: 14px;
-            font-weight: bold;
-            color: #ff6b6b;
-            text-align: center;
-            padding-top: 10px;
-            border-top: 1px solid #ddd;
-        }
-
-        .upgrade-item.purchased {
-            background-color: #c8e6c9;
-            border-color: #4caf50;
-        }
-
-        .upgrade-item.purchased .upgrade-cost {
-            color: #4caf50;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* 상단 제목 */
-        .title {
-            font-size: 60px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 80px;
-            color: #333;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .title:hover {
-            transform: scale(1.05);
-            transition: transform 0.2s;
-        }
-
-        /* 메인 컨텐츠 영역 */
-        .main-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 40px;
-            margin-bottom: 80px;
-            flex-wrap: wrap;
-        }
-
-        /* 왼쪽: 원형 (오징어) */
-        .circle {
-            width: 200px;
-            height: 200px;
-            background-color: #f0f0f0;
-            border: 3px solid #999;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 100px;
-            cursor: pointer;
-            transition: transform 0.2s;
-            flex-shrink: 0;
-        }
-
-        .circle:hover {
-            transform: scale(1.1);
-        }
-
-        /* 중앙: 이름 입력 컨테이너 */
-        .name-input-container {
-            width: 200px;
-            height: 180px;
-            background-color: #f0f0f0;
-            border: 3px solid #999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            flex-shrink: 0;
-            padding: 15px;
-            box-sizing: border-box;
-            clip-path: polygon(
-                50% 0%, 60% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 40% 35%
-            );
-        }
-
-        .name-input {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            border: 2px solid #999;
-            border-radius: 4px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .name-input:focus {
-            outline: none;
-            border-color: #ff6b6b;
-            box-shadow: 0 0 5px rgba(255, 107, 107, 0.3);
-        }
-
-        .name-button {
-            padding: 6px 14px;
-            font-size: 13px;
-            font-weight: bold;
-            background-color: #ff6b6b;
             color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            font-size: 18px;
+            z-index: 10;
         }
-
-        .name-button:hover {
-            background-color: #ff5252;
+        #squidCount {
+            margin-bottom: 15px;
+            font-weight: bold;
         }
-
-        .name-button:active {
-            background-color: #ff3333;
+        #skillCooldown {
+            color: #ffff00;
+            font-size: 14px;
         }
-
-        /* 오른쪽: 큰 사각형 (감자칩) */
-        .rectangle {
-            flex: 1;
-            height: 350px;
-            background-color: #f0f0f0;
-            border: 3px solid #999;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 120px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s;
-            min-width: 300px;
-        }
-
-        .rectangle:hover {
-            transform: scale(1.05);
-        }
-
-        .rectangle img {
+        #endScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-        }
-
-        /* 하단: 평행사변형 */
-        .bottom-section {
-            width: 100%;
-            display: flex;
-            gap: 40px;
-        }
-
-        .parallelogram {
-            flex: 1;
-            height: 150px;
-            background-color: #f0f0f0;
-            border: 3px solid #999;
-            display: flex;
-            align-items: center;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
             justify-content: center;
-            text-align: center;
-            font-size: 16px;
-            padding: 20px;
-            transform: skewX(-15deg);
-            cursor: pointer;
-            transition: transform 0.2s;
-            line-height: 1.6;
+            align-items: center;
+            z-index: 100;
+            flex-direction: column;
         }
-
-        .parallelogram:hover {
-            background-color: #e8e8e8;
+        #endScreen.show {
+            display: flex;
         }
-
-        .parallelogram-text {
-            transform: skewX(15deg);
-        }
-
-        /* 이모지 폭발 이펙트 */
-        .emoji-burst {
-            position: fixed;
-            pointer-events: none;
-            font-size: 30px;
+        #endText {
+            color: white;
+            font-size: 48px;
             font-weight: bold;
-            animation: burstAnimation 1s ease-out forwards;
-            z-index: 1000;
+            text-align: center;
         }
-
-        @keyframes burstAnimation {
-            0% {
-                opacity: 1;
-                transform: translate(0, 0) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(var(--tx), var(--ty)) scale(0.5);
-            }
-        }
-
-        /* 감자칩 파티클 */
-        .chip-particle {
-            position: fixed;
-            pointer-events: none;
-            font-size: 40px;
-            animation: chipAnimation 2s ease-out forwards;
-            z-index: 1000;
-        }
-
-        @keyframes chipAnimation {
-            0% {
-                opacity: 1;
-                transform: translate(0, 0) rotate(0deg) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(var(--tx), var(--ty)) rotate(360deg) scale(0.3);
-            }
-        }
-
-        /* 반응형 디자인 */
-        @media (max-width: 1024px) {
-            .main-content {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .rectangle {
-                width: 100%;
-                min-width: unset;
-            }
-
-            .title {
-                font-size: 40px;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .circle {
-                width: 150px;
-                height: 150px;
-                font-size: 70px;
-            }
-
-            .burst {
-                width: 140px;
-                height: 140px;
-                font-size: 20px;
-            }
-
-            .rectangle {
-                height: 250px;
-                font-size: 80px;
-            }
-
-            .title {
-                font-size: 32px;
-                margin-bottom: 40px;
-            }
-
-            .bottom-section {
-                flex-direction: column;
-            }
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #aaa;
+            font-size: 12px;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 왼쪽 위 카운터 -->
-        <div class="counter-box">
-            <div class="my-name" id="myName">사용자</div>
-            <div class="click-counter">클릭: <span id="clickCount">0</span></div>
-        </div>
-
-        <!-- 상단 제목 -->
-        <div class="title">감자칩 뿡</div>
-
-        <!-- 메인 컨텐츠 -->
-        <div class="main-content">
-            <!-- 왼쪽: 원 (오징어) -->
-            <div class="circle" onclick="handleClick(event)">🦑</div>
-
-            <!-- 중앙: 이름 입력란 -->
-            <div class="name-input-container">
-                <input type="text" id="nameInput" placeholder="이름 입력" class="name-input" maxlength="15">
-                <button id="nameButton" class="name-button">설정</button>
-            </div>
-
-            <!-- 오른쪽: 큰 사각형 (감자칩) -->
-            <div class="rectangle" id="chipContainer" onclick="handleChipExplosion(event)">🥔</div>
-        </div>
-
-        <!-- 업그레이드 섹션 -->
-        <div class="upgrade-section">
-            <h2>⚡ 클릭 업그레이드</h2>
-            <div class="upgrade-list" id="upgradeList">
-                <!-- 동적으로 생성됨 -->
-            </div>
-        </div>
+    <div id="gameContainer"></div>
+    <div id="ui">
+        <div id="squidCount">오징어: 0/4</div>
+        <div id="skillCooldown">스킬 준비됨 (F 키)</div>
+    </div>
+    <div id="instructions">
+        WASD: 이동 | ↑↓←→: 시야 조종 | F: 방구 스킬
+    </div>
+    <div id="endScreen">
+        <div id="endText">[[탈출 축하]]</div>
     </div>
 
+    <audio id="bgMusic" loop>
+        <source src="Sunset of Seven Suns.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="dangerMusic" loop>
+        <source src="THE WORLD REVOLVING.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // ===== 데이터 관리 =====
-        let currentUserName = '';
-        let leaderboard = [];
-        let upgrades = [
-            { id: 1, name: '클릭 2배 강화', icon: '⚡', desc: '클릭당 포인트 2배', cost: 100, multiplier: 2, purchased: false },
-            { id: 2, name: '클릭 3배 강화', icon: '⚡⚡', desc: '클릭당 포인트 3배', cost: 500, multiplier: 3, purchased: false, requires: 1 },
-            { id: 3, name: '클릭 5배 강화', icon: '⚡⚡⚡', desc: '클릭당 포인트 5배', cost: 2000, multiplier: 5, purchased: false, requires: 2 },
-            { id: 4, name: '자동 클릭 1', icon: '🤖', desc: '초당 1 포인트 자동 획득', cost: 5000, auto: 1, purchased: false },
-            { id: 5, name: '자동 클릭 5', icon: '🤖🤖', desc: '초당 5 포인트 자동 획득', cost: 20000, auto: 5, purchased: false, requires: 4 }
-        ];
-        let currentMultiplier = 1;
-        let autoClickRate = 0;
+        // ==================== GAME STATE ====================
+        const gameState = {
+            squidCount: 0,
+            totalSquids: 4,
+            gameEnded: false,
+            skillCooldown: 0,
+            skillMaxCooldown: 15,
+            monkeyStunned: false,
+            monkeyStubbedUntil: 0
+        };
 
-        // localStorage에서 리더보드 데이터 로드
-        function loadLeaderboard() {
-            const saved = localStorage.getItem('chipLeaderboard');
-            if (saved) {
-                leaderboard = JSON.parse(saved);
-            } else {
-                leaderboard = [];
-            }
-        }
+        // ==================== THREE.JS SETUP ====================
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x2a2a2a);
+        scene.fog = new THREE.Fog(0x2a2a2a, 150, 500);
 
-        // localStorage에 리더보드 저장
-        function saveLeaderboard() {
-            localStorage.setItem('chipLeaderboard', JSON.stringify(leaderboard));
-        }
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.getElementById('gameContainer').appendChild(renderer.domElement);
 
-        // 현재 사용자 설정
-        function initializeUser() {
-            const saved = localStorage.getItem('currentUserName');
-            if (saved) {
-                currentUserName = saved;
-                setUserName(currentUserName);
-            }
-        }
+        // ==================== PLAYER & CAMERA ====================
+        const playerSpeed = 0.2;
+        const playerHeight = 1.7;
+        let playerPos = new THREE.Vector3(0, playerHeight, 5);
+        camera.position.copy(playerPos);
 
-        // 이름 설정 함수
-        function setUserName(name) {
-            if (!name || name.trim() === '') return;
+        const keys = {};
+        window.addEventListener('keydown', (e) => { keys[e.key.toLowerCase()] = true; });
+        window.addEventListener('keyup', (e) => { keys[e.key.toLowerCase()] = false; });
 
-            currentUserName = name.trim();
-            document.getElementById('myName').textContent = currentUserName;
-            document.getElementById('nameInput').value = currentUserName;
-            localStorage.setItem('currentUserName', currentUserName);
+        let pitch = 0, yaw = 0;
+        const maxPitch = Math.PI / 2;
+        const arrowSensitivity = 0.03;
+        const playerRadius = 0.5;
 
-            // 현재 사용자가 리더보드에 없으면 추가
-            if (!leaderboard.find(p => p.name === currentUserName)) {
-                leaderboard.push({ name: currentUserName, clicks: 0 });
-                saveLeaderboard();
-            }
-
-            updateUpgrades();
-
-            // 현재 사용자의 클릭 수 표시
-            const userIndex = leaderboard.findIndex(p => p.name === currentUserName);
-            if (userIndex !== -1) {
-                currentUserClicks = leaderboard[userIndex].clicks;
-                document.getElementById('clickCount').textContent = currentUserClicks;
-            }
-        }
-
-        // 업그레이드 업데이트
-        function updateUpgrades() {
-            const upgradeHTML = upgrades.map(upgrade => {
-                const canPurchase = currentUserClicks >= upgrade.cost && !upgrade.purchased;
-                const isLocked = upgrade.requires && !upgrades.find(u => u.id === upgrade.requires)?.purchased;
-                const isPurchased = upgrade.purchased;
-                const lockClass = isLocked ? 'locked' : '';
-                const purchasedClass = isPurchased ? 'purchased' : '';
-
-                return `
-                    <div class="upgrade-item ${lockClass} ${purchasedClass}" onclick="purchaseUpgrade(${upgrade.id})">
-                        <div class="upgrade-icon">${upgrade.icon}</div>
-                        <div class="upgrade-name">${upgrade.name}</div>
-                        <div class="upgrade-desc">${upgrade.desc}</div>
-                        <div class="upgrade-cost">
-                            ${isPurchased ? '✓ 구매 완료' : isLocked ? '🔒 잠금' : `💰 ${upgrade.cost}`}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            document.getElementById('upgradeList').innerHTML = upgradeHTML;
-        }
-
-        let currentUserClicks = 0;
-
-        function purchaseUpgrade(upgradeId) {
-            const upgrade = upgrades.find(u => u.id === upgradeId);
-            if (!upgrade || upgrade.purchased) return;
-
-            const isLocked = upgrade.requires && !upgrades.find(u => u.id === upgrade.requires)?.purchased;
-            if (isLocked) {
-                alert('이전 업그레이드를 먼저 구매해야 합니다!');
-                return;
-            }
-
-            const userIndex = leaderboard.findIndex(p => p.name === currentUserName);
-            if (userIndex === -1 || leaderboard[userIndex].clicks < upgrade.cost) {
-                alert('포인트가 부족합니다!');
-                return;
-            }
-
-            leaderboard[userIndex].clicks -= upgrade.cost;
-            currentUserClicks = leaderboard[userIndex].clicks;
-            upgrade.purchased = true;
-
-            if (upgrade.multiplier) {
-                currentMultiplier = upgrade.multiplier;
-            }
-            if (upgrade.auto) {
-                autoClickRate += upgrade.auto;
-                startAutoClick();
-            }
-
-            saveLeaderboard();
-            document.getElementById('clickCount').textContent = currentUserClicks;
-            updateUpgrades();
-            playSound();
-        }
-
-        function startAutoClick() {
-            setInterval(() => {
-                if (currentUserName && autoClickRate > 0) {
-                    const userIndex = leaderboard.findIndex(p => p.name === currentUserName);
-                    if (userIndex !== -1) {
-                        leaderboard[userIndex].clicks += autoClickRate;
-                        currentUserClicks = leaderboard[userIndex].clicks;
-                        document.getElementById('clickCount').textContent = currentUserClicks;
-                        saveLeaderboard();
-                        updateUpgrades();
-                    }
+        function isColliding(pos) {
+            for (let wall of wallColliders) {
+                const dx = Math.abs(pos.x - wall.pos.x);
+                const dz = Math.abs(pos.z - wall.pos.z);
+                if (dx < wall.size.x / 2 + playerRadius && dz < wall.size.z / 2 + playerRadius) {
+                    return true;
                 }
-            }, 1000);
-        }
-
-        // 현재 사용자 클릭 수 증가
-        function increaseMyClicks() {
-            const userIndex = leaderboard.findIndex(p => p.name === currentUserName);
-            if (userIndex !== -1) {
-                leaderboard[userIndex].clicks += currentMultiplier;
-                currentUserClicks = leaderboard[userIndex].clicks;
-                document.getElementById('clickCount').textContent = currentUserClicks;
-                saveLeaderboard();
-                updateUpgrades();
             }
+            return false;
         }
 
-        // 무지개색 배경 애니메이션
-        const colors = [
-            '#FFB6C1', // 라이트 핑크
-            '#FFD700', // 골드
-            '#98FB98', // 라이트 그린
-            '#87CEEB', // 스카이 블루
-            '#DDA0DD', // 플럼
-            '#F0E68C', // 카키
-            '#FFB347'  // 페리사몬
+        function updateCameraRotation() {
+            if (keys['arrowup']) pitch -= arrowSensitivity;
+            if (keys['arrowdown']) pitch += arrowSensitivity;
+            if (keys['arrowleft']) yaw += arrowSensitivity;
+            if (keys['arrowright']) yaw -= arrowSensitivity;
+            pitch = Math.max(-maxPitch, Math.min(maxPitch, pitch));
+
+            const direction = new THREE.Vector3();
+            direction.x = Math.sin(yaw);
+            direction.y = Math.sin(pitch);
+            direction.z = Math.cos(yaw);
+            direction.normalize();
+
+            const right = new THREE.Vector3();
+            right.x = Math.cos(yaw);
+            right.y = 0;
+            right.z = -Math.sin(yaw);
+            right.normalize();
+
+            const moveDir = new THREE.Vector3();
+            if (keys['w']) moveDir.addScaledVector(direction, playerSpeed);
+            if (keys['s']) moveDir.addScaledVector(direction, -playerSpeed);
+            if (keys['a']) moveDir.addScaledVector(right, -playerSpeed);
+            if (keys['d']) moveDir.addScaledVector(right, playerSpeed);
+
+            const newPos = playerPos.clone().add(moveDir);
+            if (!isColliding(newPos)) {
+                playerPos.add(moveDir);
+            }
+            playerPos.y = playerHeight;
+
+            camera.position.copy(playerPos);
+            camera.lookAt(playerPos.clone().add(direction.multiplyScalar(10)));
+        }
+
+        // ==================== LIGHTING ====================
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(50, 50, 50);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.camera.left = -100;
+        directionalLight.shadow.camera.right = 100;
+        directionalLight.shadow.camera.top = 100;
+        directionalLight.shadow.camera.bottom = -100;
+        scene.add(directionalLight);
+
+        // ==================== MAZE GENERATION ====================
+        let wallColliders = [];
+        function createMaze() {
+            // Floor
+            const floorGeometry = new THREE.PlaneGeometry(200, 200);
+            const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            // Ceiling
+            const ceilingGeo = new THREE.PlaneGeometry(200, 200);
+            const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a });
+            const ceiling = new THREE.Mesh(ceilingGeo, ceilingMat);
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.y = 12;
+            ceiling.receiveShadow = true;
+            scene.add(ceiling);
+
+            // Walls (Dark Tan/Brown color)
+            const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xD2B48C });
+            const wallH = 8;
+
+            const wallPositions = [
+                // Perimeter walls
+                [-60, 0, -60, 10, wallH], [-60, 0, 0, 10, wallH], [-60, 0, 60, 10, wallH],
+                [60, 0, -60, 10, wallH], [60, 0, 0, 10, wallH], [60, 0, 60, 10, wallH],
+                [-60, 0, -60, 120, wallH], [-60, 0, 60, 120, wallH],
+                [60, 0, -60, 120, wallH], [60, 0, 60, 120, wallH],
+                // Internal maze walls
+                [-30, 0, -40, 20, wallH], [30, 0, -40, 20, wallH],
+                [-40, 0, -20, 20, wallH], [40, 0, -20, 20, wallH],
+                [-30, 0, 0, 20, wallH], [30, 0, 0, 20, wallH],
+                [-40, 0, 20, 20, wallH], [40, 0, 20, wallH],
+                [-30, 0, 40, 20, wallH], [30, 0, 40, 20, wallH],
+                [0, 0, -50, 20, wallH], [0, 0, 30, 20, wallH],
+                [-50, 0, 10, 20, wallH], [50, 0, 10, 20, wallH],
+                [-15, 0, -25, 15, wallH], [15, 0, -25, 15, wallH],
+                [-20, 0, 15, 15, wallH], [20, 0, 15, 15, wallH]
+            ];
+
+            wallPositions.forEach(([x, y, z, w, h]) => {
+                const wallGeo = new THREE.BoxGeometry(w, h, 2);
+                const wall = new THREE.Mesh(wallGeo, wallMaterial);
+                wall.position.set(x, y + h / 2, z);
+                wall.castShadow = true;
+                wall.receiveShadow = true;
+                scene.add(wall);
+                wallColliders.push({ pos: new THREE.Vector3(x, y + h / 2, z), size: new THREE.Vector3(w, h, 2) });
+            });
+        }
+        createMaze();
+
+        // ==================== SPAWN POINT & SAFE ZONE ====================
+        const spawnPoint = new THREE.Vector3(0, playerHeight, 5);
+        const safeZoneRadius = 8;
+
+        // ==================== DOOR ====================
+        let doorDestroyed = false;
+        const doorPos = new THREE.Vector3(-55, 2.5, 0);
+        let doorGroup = new THREE.Group();
+        let doorMarker = null;
+
+        function createDoor() {
+            const doorGeo = new THREE.BoxGeometry(2.5, 3.5, 0.3);
+            const doorMat = new THREE.MeshStandardMaterial({ color: 0x808080 });
+            const doorMesh = new THREE.Mesh(doorGeo, doorMat);
+            doorMesh.castShadow = true;
+            doorMesh.receiveShadow = true;
+            doorGroup.add(doorMesh);
+            doorGroup.position.copy(doorPos);
+            scene.add(doorGroup);
+        }
+        createDoor();
+
+        // ==================== SQUIDS (COLLECTIBLES) ====================
+        const squids = [];
+        const squidPositions = [
+            new THREE.Vector3(35, 1, 35),
+            new THREE.Vector3(-45, 1, -45),
+            new THREE.Vector3(45, 1, -35),
+            new THREE.Vector3(-35, 1, 45)
         ];
 
-        let colorIndex = 0;
-        function changeBackgroundColor() {
-            document.body.style.backgroundColor = colors[colorIndex];
-            colorIndex = (colorIndex + 1) % colors.length;
+        function createSquid(pos) {
+            const squidGroup = new THREE.Group();
+
+            const bodyGeo = new THREE.SphereGeometry(0.4, 8, 8);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xff69b4 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.castShadow = true;
+            body.receiveShadow = true;
+            squidGroup.add(body);
+
+            for (let i = 0; i < 8; i++) {
+                const tentacleCurve = new THREE.CatmullRomCurve3([
+                    new THREE.Vector3(0, 0, 0),
+                    new THREE.Vector3(Math.cos(i * Math.PI / 4) * 0.3, -0.3, Math.sin(i * Math.PI / 4) * 0.3),
+                    new THREE.Vector3(Math.cos(i * Math.PI / 4) * 0.4, -0.6, Math.sin(i * Math.PI / 4) * 0.4)
+                ]);
+                const tentacleGeo = new THREE.TubeGeometry(tentacleCurve, 8, 0.1, 4);
+                const tentacle = new THREE.Mesh(tentacleGeo, bodyMat);
+                tentacle.position.y = -0.3;
+                tentacle.castShadow = true;
+                squidGroup.add(tentacle);
+            }
+
+            squidGroup.position.copy(pos);
+            squidGroup.collected = false;
+            scene.add(squidGroup);
+            return squidGroup;
         }
 
-        // 매 3초마다 배경색 변경
-        setInterval(changeBackgroundColor, 3000);
-        changeBackgroundColor();
+        squidPositions.forEach(pos => {
+            squids.push(createSquid(pos));
+        });
 
-        // 페이지 로드 시 초기화
-        window.addEventListener('load', function() {
-            loadLeaderboard();
-            initializeUser();
-            updateUpgrades();
+        // ==================== MONKEY ENEMY ====================
+        let monkeyPos = new THREE.Vector3(30, 1, -30);
+        let monkeyGroup = new THREE.Group();
+        let monkeyVelocity = new THREE.Vector3();
+        const monkeyRadius = 0.6;
 
-            // 이름 입력 필드 이벤트
-            const nameInput = document.getElementById('nameInput');
-            const nameButton = document.getElementById('nameButton');
+        function createMonkey() {
+            // Body
+            const bodyGeo = new THREE.BoxGeometry(1.2, 1.8, 0.8);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.castShadow = true;
+            body.receiveShadow = true;
+            monkeyGroup.add(body);
 
-            nameButton.addEventListener('click', function() {
-                setUserName(nameInput.value);
-            });
+            // Head
+            const headGeo = new THREE.SphereGeometry(0.6, 8, 8);
+            const head = new THREE.Mesh(headGeo, bodyMat);
+            head.position.y = 1.3;
+            head.castShadow = true;
+            head.receiveShadow = true;
+            monkeyGroup.add(head);
 
-            nameInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    setUserName(nameInput.value);
-                }
-            });
+            // Eyes
+            for (let i = -1; i <= 1; i += 2) {
+                const eyeGeo = new THREE.SphereGeometry(0.2, 8, 8);
+                const eyeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+                const eye = new THREE.Mesh(eyeGeo, eyeMat);
+                eye.position.set(i * 0.25, 1.6, 0.45);
+                monkeyGroup.add(eye);
+            }
 
-            // 현재 사용자의 클릭 수 표시
-            const userIndex = leaderboard.findIndex(p => p.name === currentUserName);
-            if (userIndex !== -1) {
-                currentUserClicks = leaderboard[userIndex].clicks;
-                document.getElementById('clickCount').textContent = currentUserClicks;
+            monkeyGroup.position.copy(monkeyPos);
+            scene.add(monkeyGroup);
+        }
+        createMonkey();
+
+        // ==================== AUDIO ====================
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Resume audio context on user interaction
+        document.addEventListener('click', () => {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        });
+        document.addEventListener('keydown', () => {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
             }
         });
 
-        // 윈도우 효과음 재생 함수
-        function playSound() {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
+        const bgMusicElement = document.getElementById('bgMusic');
+        const dangerMusicElement = document.getElementById('dangerMusic');
+        let currentMusicType = 'normal';
+
+        bgMusicElement.volume = 0.4;
+        dangerMusicElement.volume = 0.4;
+
+        function playBackgroundMusic() {
+            dangerMusicElement.pause();
+            dangerMusicElement.currentTime = 0;
+            bgMusicElement.play().catch(e => console.log('음악 재생 실패:', e));
+        }
+
+        function playDangerMusic() {
+            bgMusicElement.pause();
+            bgMusicElement.currentTime = 0;
+            dangerMusicElement.play().catch(e => console.log('음악 재생 실패:', e));
+        }
+
+        // 페이지 로드 후 배경음악 시작
+        window.addEventListener('load', () => {
+            setTimeout(() => playBackgroundMusic(), 500);
+        });
+
+        function playTone(freq, duration, type = 'sine', gain = 0.3) {
+            const osc = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-
-            oscillator.connect(gainNode);
+            osc.connect(gainNode);
             gainNode.connect(audioContext.destination);
-
-            oscillator.frequency.value = 800;
-            oscillator.type = 'sine';
-
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.1);
+            osc.type = type;
+            osc.frequency.value = freq;
+            gainNode.gain.setValueAtTime(gain, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + duration);
         }
 
-        // 일반 클릭 처리 (이모지 폭발)
-        function handleClick(e) {
-            playSound();
-
-            const emojis = ['🎉', '✨', '⭐', '💫', '🌟', '😂', '🤣', '👏'];
-            const x = e.clientX;
-            const y = e.clientY;
-
-            for (let i = 0; i < 5; i++) {
-                const emoji = document.createElement('div');
-                emoji.className = 'emoji-burst';
-                emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-
-                const angle = (Math.PI * 2 * i) / 5;
-                const distance = 100;
-                const tx = Math.cos(angle) * distance;
-                const ty = Math.sin(angle) * distance;
-
-                emoji.style.left = x + 'px';
-                emoji.style.top = y + 'px';
-                emoji.style.setProperty('--tx', tx + 'px');
-                emoji.style.setProperty('--ty', ty + 'px');
-
-                document.body.appendChild(emoji);
-
-                setTimeout(() => emoji.remove(), 1000);
-            }
+        function playSwoosh() {
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            osc.start(now);
+            osc.stop(now + 0.3);
         }
 
-        // 감자칩 폭발 처리
-        function handleChipExplosion(e) {
-            playSound();
-            playSound(); // 더 큰 효과를 위해 두 번
-
-            // 클릭 수 증가
-            increaseMyClicks();
-
-            const x = e.clientX;
-            const y = e.clientY;
-
-            // 감자칩 파티클 생성
-            for (let i = 0; i < 12; i++) {
-                const chip = document.createElement('div');
-                chip.className = 'chip-particle';
-                chip.textContent = '🥔';
-
-                const angle = (Math.PI * 2 * i) / 12;
-                const distance = 200 + Math.random() * 100;
-                const tx = Math.cos(angle) * distance;
-                const ty = Math.sin(angle) * distance;
-
-                chip.style.left = x + 'px';
-                chip.style.top = y + 'px';
-                chip.style.setProperty('--tx', tx + 'px');
-                chip.style.setProperty('--ty', ty + 'px');
-
-                document.body.appendChild(chip);
-
-                setTimeout(() => chip.remove(), 2000);
-            }
-
-            // 폭발 이모지도 추가
-            const explosionEmojis = ['💥', '🌪️', '⚡'];
-            for (let i = 0; i < 8; i++) {
-                const emoji = document.createElement('div');
-                emoji.className = 'emoji-burst';
-                emoji.textContent = explosionEmojis[Math.floor(Math.random() * explosionEmojis.length)];
-
-                const angle = (Math.PI * 2 * i) / 8;
-                const distance = 150;
-                const tx = Math.cos(angle) * distance;
-                const ty = Math.sin(angle) * distance;
-
-                emoji.style.left = x + 'px';
-                emoji.style.top = y + 'px';
-                emoji.style.setProperty('--tx', tx + 'px');
-                emoji.style.setProperty('--ty', ty + 'px');
-
-                document.body.appendChild(emoji);
-
-                setTimeout(() => emoji.remove(), 1000);
-            }
+        function playExplosion() {
+            playSwoosh();
+            playTone(150, 0.4, 'square', 0.3);
+            playTone(100, 0.6, 'sine', 0.2);
         }
+
+        function playMonkeyScream() {
+            playTone(800, 0.3, 'sine', 0.4);
+            playTone(600, 0.3, 'sine', 0.3);
+        }
+
+        function playFart() {
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.4);
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+            osc.start(now);
+            osc.stop(now + 0.4);
+        }
+
+        function playGroan() {
+            playTone(120, 0.6, 'sine', 0.2);
+        }
+
+        // ==================== SKILL SYSTEM ====================
+        window.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'f' && gameState.skillCooldown <= 0 && !gameState.gameEnded) {
+                playExplosion();
+                playFart();
+                setTimeout(playGroan, 400);
+
+                gameState.skillCooldown = gameState.skillMaxCooldown;
+
+                // Stun nearby monkey
+                const distToMonkey = playerPos.distanceTo(monkeyPos);
+                if (distToMonkey < 20) {
+                    gameState.monkeyStunned = true;
+                    gameState.monkeyStubbedUntil = Date.now() + 6000;
+                    playMonkeyScream();
+                }
+            }
+        });
+
+        // ==================== GAME LOOP ====================
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update camera rotation
+            updateCameraRotation();
+
+            // Update skill cooldown
+            if (gameState.skillCooldown > 0) {
+                gameState.skillCooldown -= 0.016;
+            }
+
+            // Update UI
+            document.getElementById('squidCount').textContent = `오징어: ${gameState.squidCount}/4`;
+            if (gameState.skillCooldown <= 0) {
+                document.getElementById('skillCooldown').textContent = '스킬 준비됨 (F 키)';
+                document.getElementById('skillCooldown').style.color = '#00ff00';
+            } else {
+                document.getElementById('skillCooldown').textContent = `스킬 쿨타임: ${gameState.skillCooldown.toFixed(1)}s`;
+                document.getElementById('skillCooldown').style.color = '#ffff00';
+            }
+
+            // Check stun status
+            if (gameState.monkeyStunned && Date.now() > gameState.monkeyStubbedUntil) {
+                gameState.monkeyStunned = false;
+            }
+
+            // Squid collection
+            squids.forEach((squid, idx) => {
+                if (!squid.collected) {
+                    squid.rotation.y += 0.02;
+                    squid.position.y += Math.sin(Date.now() * 0.003) * 0.01;
+
+                    const distToPlayer = playerPos.distanceTo(squid.position);
+                    if (distToPlayer < 3) {
+                        squid.collected = true;
+                        gameState.squidCount++;
+                        scene.remove(squid);
+                    }
+                }
+            });
+
+            // Monkey AI
+            if (!gameState.monkeyStunned) {
+                const dirToPlayer = new THREE.Vector3();
+                dirToPlayer.subVectors(playerPos, monkeyPos).normalize();
+                monkeyVelocity.copy(dirToPlayer).multiplyScalar(0.12);
+            } else {
+                monkeyVelocity.multiplyScalar(0.95);
+            }
+
+            const newMonkeyPos = monkeyPos.clone().add(monkeyVelocity);
+            let canMove = true;
+            for (let wall of wallColliders) {
+                const dx = Math.abs(newMonkeyPos.x - wall.pos.x);
+                const dz = Math.abs(newMonkeyPos.z - wall.pos.z);
+                if (dx < wall.size.x / 2 + monkeyRadius && dz < wall.size.z / 2 + monkeyRadius) {
+                    canMove = false;
+                    break;
+                }
+            }
+
+            if (canMove) {
+                monkeyPos.add(monkeyVelocity);
+            }
+
+            monkeyPos.y = 1;
+            monkeyGroup.position.copy(monkeyPos);
+
+            // Make monkey look at player
+            const dirToPlayerForLook = playerPos.clone().sub(monkeyPos);
+            monkeyGroup.lookAt(monkeyPos.clone().add(dirToPlayerForLook));
+
+            // Collision with monkey
+            const distToMonkey = playerPos.distanceTo(monkeyPos);
+            if (distToMonkey < 2) {
+                playerPos.copy(spawnPoint);
+                camera.position.copy(playerPos);
+            }
+
+            // Safe zone (can't take damage here)
+            const distToSpawn = playerPos.distanceTo(spawnPoint);
+            if (distToSpawn < safeZoneRadius && distToMonkey < 2) {
+                // Monkey bounces back
+                const bounceDir = new THREE.Vector3();
+                bounceDir.subVectors(monkeyPos, playerPos).normalize();
+                monkeyPos.addScaledVector(bounceDir, 3);
+            }
+
+            // Door marker when all squids collected
+            if (gameState.squidCount === 4 && !doorMarker && !doorDestroyed) {
+                const markerGeo = new THREE.SphereGeometry(0.4, 16, 16);
+                const markerMat = new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffff00, emissiveIntensity: 0.5 });
+                doorMarker = new THREE.Mesh(markerGeo, markerMat);
+                doorMarker.position.copy(doorPos);
+                doorMarker.position.y = 3.5;
+                scene.add(doorMarker);
+            }
+
+            // Door destruction
+            if (gameState.squidCount === 4 && playerPos.distanceTo(doorPos) < 3 && !doorDestroyed && !gameState.gameEnded) {
+                doorDestroyed = true;
+                gameState.gameEnded = true;
+                playExplosion();
+                playGroan();
+
+                // Animate door destruction
+                setTimeout(() => {
+                    scene.remove(doorGroup);
+                    if (doorMarker) scene.remove(doorMarker);
+                    document.getElementById('endScreen').classList.add('show');
+                }, 500);
+
+                // Fade screen to black
+                const fadeDiv = document.createElement('div');
+                fadeDiv.style.position = 'fixed';
+                fadeDiv.style.top = '0';
+                fadeDiv.style.left = '0';
+                fadeDiv.style.width = '100%';
+                fadeDiv.style.height = '100%';
+                fadeDiv.style.background = 'rgba(0, 0, 0, 0)';
+                fadeDiv.style.zIndex = '99';
+                fadeDiv.style.transition = 'background 0.5s ease-out';
+                document.body.appendChild(fadeDiv);
+                setTimeout(() => {
+                    fadeDiv.style.background = 'rgba(0, 0, 0, 0.95)';
+                }, 10);
+            }
+
+            // Update music based on threat level
+            const monkeyDist = playerPos.distanceTo(monkeyPos);
+            const isInDanger = monkeyDist < 25 && distToSpawn > safeZoneRadius;
+
+            if (isInDanger && currentMusicType === 'normal') {
+                currentMusicType = 'danger';
+                playDangerMusic();
+            } else if (!isInDanger && currentMusicType === 'danger') {
+                currentMusicType = 'normal';
+                playBackgroundMusic();
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
